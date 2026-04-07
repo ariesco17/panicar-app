@@ -31,6 +31,7 @@ export default function ProgramarPublicacion() {
   const [form, setForm] = useState({
     vehiculo_id: '',
     plataforma: 'facebook',
+    tipo_archivo: 'foto',
     fecha: todayISO(),
     hora: '09:00',
     caption: '',
@@ -66,6 +67,7 @@ export default function ProgramarPublicacion() {
     const { error } = await supabase.from('publicaciones').insert({
       vehiculo_id: form.vehiculo_id,
       plataforma: form.plataforma,
+      tipo_archivo: form.tipo_archivo,
       fecha_publicacion,
       caption: form.caption.trim() || null,
       estado: 'listo',
@@ -113,6 +115,18 @@ export default function ProgramarPublicacion() {
                   {p.label}
                 </option>
               ))}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>¿Qué deseas publicar?</label>
+            <select
+              className="form-control"
+              value={form.tipo_archivo}
+              onChange={e => setField('tipo_archivo', e.target.value)}
+            >
+              <option value="foto">Foto</option>
+              <option value="video">Video</option>
             </select>
           </div>
 
