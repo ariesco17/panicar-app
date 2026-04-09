@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 
 const BADGE = {
-  listo:      'badge-listo',
-  procesando: 'badge-procesando',
-  publicado:  'badge-publicado',
-  error:      'badge-error',
+  listo:             'badge-listo',
+  procesando:        'badge-procesando',
+  publicado:         'badge-publicado',
+  publicado_parcial: 'badge-parcial',
+  error:             'badge-error',
 }
 
 function formatFecha(iso) {
@@ -72,6 +73,7 @@ export default function ListaPublicaciones() {
                   <th>Fecha</th>
                   <th>Caption</th>
                   <th>Estado</th>
+                  <th>Resultado por cuenta</th>
                   <th></th>
                 </tr>
               </thead>
@@ -88,6 +90,9 @@ export default function ListaPublicaciones() {
                       <span className={`badge ${BADGE[p.estado] ?? 'badge-listo'}`}>
                         {p.estado}
                       </span>
+                    </td>
+                    <td style={{ maxWidth: 280, fontSize: '0.78em', color: '#666', lineHeight: 1.5 }}>
+                      {p.resultado_detalle || '—'}
                     </td>
                     <td>
                       {p.estado === 'listo' && (
