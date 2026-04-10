@@ -321,6 +321,98 @@ select.form-control option:disabled { color: #bbb; }
   white-space: nowrap;
 }
 
+/* CALENDARIO MULTI-DÍA */
+.calendar-wrap {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #f8f8f8;
+  border-bottom: 1px solid #eee;
+}
+
+.cal-titulo {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.cal-nav-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #555;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.cal-nav-btn:hover:not(:disabled) { background: #e8e8e8; }
+.cal-nav-btn:disabled { color: #ccc; cursor: not-allowed; }
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  padding: 8px;
+}
+
+.cal-dia-nombre {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #888;
+  text-transform: uppercase;
+  padding: 4px 0 6px;
+}
+
+.cal-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  user-select: none;
+}
+
+.cal-day:hover:not(.disabled):not(.cal-day-empty) {
+  background: #f0e9c2;
+}
+
+.cal-day.selected {
+  background: #e8c84a;
+  color: #1a1a2e;
+  font-weight: 700;
+}
+
+.cal-day.disabled {
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.cal-day-empty {
+  cursor: default;
+}
+
+.selected-count {
+  display: block;
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
 /* CERRAR SESIÓN */
 .btn-logout {
   margin-left: auto;
