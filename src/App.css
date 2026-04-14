@@ -327,6 +327,7 @@ select.form-control option:disabled { color: #bbb; }
   border-radius: 8px;
   overflow: hidden;
   background: #fff;
+  max-width: 340px;
 }
 
 .calendar-header {

@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 
 const PLATAFORMAS = [
-  { value: 'facebook',  label: 'Facebook',  disabled: false },
-  { value: 'instagram', label: 'Instagram', disabled: false },
-  { value: 'tiktok',    label: 'TikTok',    disabled: false },
-  { value: 'youtube',   label: 'YouTube (próximamente)', disabled: true },
+  { value: 'facebook',           label: 'Facebook',                    disabled: false },
+  { value: 'instagram',          label: 'Instagram',                   disabled: false },
+  { value: 'instagram_historia', label: 'Instagram Historia',          disabled: false },
+  { value: 'tiktok',             label: 'TikTok',                      disabled: false },
+  { value: 'youtube',            label: 'YouTube (próximamente)',       disabled: true  },
 ]
 
 function buildTimeOptions() {
