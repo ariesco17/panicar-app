@@ -28,10 +28,14 @@ export default function ListaPublicaciones() {
   const [error, setError] = useState(null)
   const [filtroEstado, setFiltroEstado] = useState('todos')
   const [filtroPlataforma, setFiltroPlataforma] = useState('todas')
+  const [filtroDesde, setFiltroDesde] = useState('')
+  const [filtroHasta, setFiltroHasta] = useState('')
   const [pagina, setPagina] = useState(1)
   const [totalPaginas, setTotalPaginas] = useState(1)
 
-  useEffect(() => { fetchPublicaciones() }, [filtroEstado, filtroPlataforma, pagina])
+  const hayFiltros = filtroEstado !== 'todos' || filtroPlataforma !== 'todas' || filtroDesde !== '' || filtroHasta !== ''
+
+  useEffect(() => { fetchPublicaciones() }, [filtroEstado, filtroPlataforma, filtroDesde, filtroHasta, pagina])
 
   async function fetchPublicaciones() {
     setLoading(true)
@@ -43,6 +47,8 @@ export default function ListaPublicaciones() {
       .select('id', { count: 'exact', head: true })
     if (filtroEstado !== 'todos') countQuery = countQuery.eq('estado', filtroEstado)
     if (filtroPlataforma !== 'todas') countQuery = countQuery.eq('plataforma', filtroPlataforma)
+    if (filtroDesde) countQuery = countQuery.gte('fecha_publicacion', filtroDesde + 'T00:00:00')
+    if (filtroHasta) countQuery = countQuery.lte('fecha_publicacion', filtroHasta + 'T23:59:59')
     const { count } = await countQuery
     const total = Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE))
     setTotalPaginas(total)
@@ -57,6 +63,8 @@ export default function ListaPublicaciones() {
       .range(start, end)
     if (filtroEstado !== 'todos') dataQuery = dataQuery.eq('estado', filtroEstado)
     if (filtroPlataforma !== 'todas') dataQuery = dataQuery.eq('plataforma', filtroPlataforma)
+    if (filtroDesde) dataQuery = dataQuery.gte('fecha_publicacion', filtroDesde + 'T00:00:00')
+    if (filtroHasta) dataQuery = dataQuery.lte('fecha_publicacion', filtroHasta + 'T23:59:59')
 
     const { data, error } = await dataQuery
     if (error) setError(error.message)
@@ -71,6 +79,24 @@ export default function ListaPublicaciones() {
 
   function handleFiltroPlataforma(val) {
     setFiltroPlataforma(val)
+    setPagina(1)
+  }
+
+  function handleFiltroDesde(val) {
+    setFiltroDesde(val)
+    setPagina(1)
+  }
+
+  function handleFiltroHasta(val) {
+    setFiltroHasta(val)
+    setPagina(1)
+  }
+
+  function limpiarFiltros() {
+    setFiltroEstado('todos')
+    setFiltroPlataforma('todas')
+    setFiltroDesde('')
+    setFiltroHasta('')
     setPagina(1)
   }
 
@@ -121,6 +147,31 @@ export default function ListaPublicaciones() {
             ))}
           </select>
         </div>
+        <div className="filter-group">
+          <label className="filter-label">Desde</label>
+          <input
+            type="date"
+            className="filter-select"
+            value={filtroDesde}
+            onChange={e => handleFiltroDesde(e.target.value)}
+          />
+        </div>
+        <div className="filter-group">
+          <label className="filter-label">Hasta</label>
+          <input
+            type="date"
+            className="filter-select"
+            value={filtroHasta}
+            onChange={e => handleFiltroHasta(e.target.value)}
+          />
+        </div>
+        {hayFiltros && (
+          <div className="filter-group">
+            <button className="btn btn-warning btn-sm" onClick={limpiarFiltros}>
+              Limpiar filtros
+            </button>
+          </div>
+        )}
       </div>
 
       {error && <div className="alert-error">{error}</div>}
