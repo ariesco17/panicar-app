@@ -123,11 +123,36 @@ export default function ProgramarPublicacion() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(null)
+  const [tiktokWarningDias, setTiktokWarningDias] = useState([])
+
+  const vehiculoSeleccionado = vehiculos.find(v => v.id === form.vehiculo_id) || null
+
+  useEffect(() => {
+    if (form.plataforma !== 'tiktok' || diasSeleccionados.size === 0) {
+      setTiktokWarningDias([])
+      return
+    }
+    const dias = [...diasSeleccionados]
+    Promise.all(
+      dias.map(async dia => {
+        const { count } = await supabase
+          .from('publicaciones')
+          .select('id', { count: 'exact', head: true })
+          .eq('plataforma', 'tiktok')
+          .gte('fecha_publicacion', dia + 'T00:00:00')
+          .lte('fecha_publicacion', dia + 'T23:59:59')
+          .neq('estado', 'error')
+        return { dia, count: count ?? 0 }
+      })
+    ).then(results => {
+      setTiktokWarningDias(results.filter(r => r.count >= 9).map(r => r.dia))
+    })
+  }, [form.plataforma, diasSeleccionados])
 
   useEffect(() => {
     supabase
       .from('vehiculos')
-      .select('id, nombre')
+      .select('id, nombre, tiene_video')
       .eq('activo', true)
       .order('nombre')
       .then(({ data }) => {
@@ -140,6 +165,16 @@ export default function ProgramarPublicacion() {
 
   function setField(key, value) {
     setForm(f => ({ ...f, [key]: value }))
+  }
+
+  function handleVehiculoChange(e) {
+    const vid = e.target.value
+    const v = vehiculos.find(veh => veh.id === vid)
+    setForm(f => ({
+      ...f,
+      vehiculo_id: vid,
+      tipo_archivo: (!v?.tiene_video && f.tipo_archivo === 'video') ? 'foto' : f.tipo_archivo,
+    }))
   }
 
   function toggleDia(dateStr) {
@@ -188,6 +223,8 @@ export default function ProgramarPublicacion() {
     setTimeout(() => setSuccess(null), 5000)
   }
 
+  const videoDeshabilitado = !vehiculoSeleccionado?.tiene_video
+
   return (
     <div>
       <h1 className="screen-title">Programar publicación</h1>
@@ -202,7 +239,7 @@ export default function ProgramarPublicacion() {
             <select
               className="form-control"
               value={form.vehiculo_id}
-              onChange={e => setField('vehiculo_id', e.target.value)}
+              onChange={handleVehiculoChange}
               required
             >
               {vehiculos.length === 0 && <option value="">Sin vehículos activos</option>}
@@ -235,8 +272,15 @@ export default function ProgramarPublicacion() {
               onChange={e => setField('tipo_archivo', e.target.value)}
             >
               <option value="foto">Foto</option>
-              <option value="video">Video</option>
+              <option value="video" disabled={videoDeshabilitado} style={videoDeshabilitado ? { color: '#94a3b8' } : {}}>
+                Video{videoDeshabilitado ? ' (no disponible)' : ''}
+              </option>
             </select>
+            {videoDeshabilitado && (
+              <span className="hint" style={{ color: '#94a3b8' }}>
+                Este vehículo no tiene video disponible en Drive
+              </span>
+            )}
           </div>
 
           <div className="form-group">
@@ -265,6 +309,13 @@ export default function ProgramarPublicacion() {
               <span className="selected-count">
                 {diasSeleccionados.size} día{diasSeleccionados.size !== 1 ? 's' : ''} seleccionado{diasSeleccionados.size !== 1 ? 's' : ''}
               </span>
+            )}
+            {tiktokWarningDias.length > 0 && (
+              <div className="alert-warning" style={{ marginTop: 10 }}>
+                ⚠️ TikTok limita las publicaciones vía API (máx. 10 por cuenta/día, 30 en total).
+                {' '}Los siguientes días ya tienen 9 o más programadas: <strong>{tiktokWarningDias.join(', ')}</strong>.
+                {' '}Publicaciones adicionales pueden ser bloqueadas.
+              </div>
             )}
           </div>
 
